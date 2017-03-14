@@ -1,42 +1,79 @@
 import React, {Component} from 'react';
-import Sound from 'react-sound';
 
 // App component - represents the whole app
 export default class App extends Component {
 
     constructor(props) {
         super(props);
-        this.state = {
-            pianoStatus: "PAUSED",
-            violinStatus: "PAUSED",
-            trumpetStatus: "PAUSED",
-            position: 0
+        this.selectedCheckboxes = [];
+        this.song = {
+            organ: [
+                false, false, false, false
+            ],
+            clap: [
+                false, false, false, false
+            ],
+            cymbal: [false, false, false, false]
         };
+        this.instruments = {
+            organ: {
+                audio: new Audio('/audio/organ-1.mp3'),
+                filename: '/audio/organ-1.mp3'
+            },
+            clap: {
+                audio: new Audio('/audio/clap.mp3'),
+                filename: '/audio/clap.mp3'
+            },
+            cymbal: {
+                audio: new Audio('/audio/cymbal.mp3'),
+                filename: '/audio/cymbal.mp3'
+            }
+        }
     }
 
-    handlePianoClick(event, prevState) {
-        event.preventDefault();
-        this.setState(prevState => ({
-            pianoStatus: !prevState.pianoStatus
-        }));
+    toggleCheckboxChange(event) {
+        var instrument = event
+            .target
+            .getAttribute('data-instrument');
+        var time = event
+            .target
+            .getAttribute('data-time');
+        if (this.song[instrument][time] === false) {
+            this.song[instrument][time] = true;
+        } else {
+            this.song[instrument][time] = false;
+        }
     }
 
-    handleViolinClick(event, prevState) {
-        event.preventDefault();
-        this.setState(prevState => ({
-            violinStatus: !prevState.violinStatus
-        }));
+    handleSubmit(event) {
+        this.playSong();
     }
 
-    handleTrumpetClick(event, prevState) {
-        event.preventDefault();
-        this.setState(prevState => ({
-            trumpetStatus: !prevState.trumpetStatus
-        }));
+    playSong() {
+        var started = Date.now();
+
+        var currentSecond = -1;
+        while (Date.now() - started <= 4000) {
+            if (Math.floor((Date.now() - started) / 1000) > currentSecond) {
+                currentSecond += 1;
+
+                Object
+                    .keys(this.song)
+                    .forEach(function (instrument) {
+                        if (this.song[instrument][currentSecond]) {
+                            this.playInstrument(instrument);
+                        }
+                    }.bind(this));
+            }
+        }
     }
 
-    handlePlaying(event) {
-        this.setState({position: event.position});
+    playInstrument(instrument) {
+        console.log(instrument);
+        this
+            .instruments[instrument]
+            .audio
+            .play();
     }
 
     render() {
@@ -45,45 +82,128 @@ export default class App extends Component {
                 <header>
                     <h1>Click a button to start :)</h1>
                 </header>
-                <Sound
-                    id="piano"
-                    url="http://www.piano-midi.de/mp3/BFFCEDC41B391847DAE02F6A5EA1E1A8/alb_esp2.mp3"
-                    playStatus={this.state.pianoStatus
-                    ? "PAUSED"
-                    : "PLAYING"}
-                    onPlaying={this.handleSongPlaying}
-                    position={this.state.position}/>
-                <Sound
-                    id="trumpet"
-                    url="http://www.mfiles.co.uk/mp3-downloads/purcell-funeral-music-for-queen-mary.mp3"
-                    playStatus={this.state.trumpetStatus
-                    ? "PAUSED"
-                    : "PLAYING"}
-                    onPlaying={this.handleSongPlaying}
-                    position={this.state.position}/>
-                <Sound
-                    id="violin"
-                    url="http://www.gyrosquartet.com/audio/Pachelbel.mp3"
-                    playStatus={this.state.violinStatus
-                    ? "PAUSED"
-                    : "PLAYING"}
-                    onPlaying={this.handleSongPlaying}
-                    position={this.state.position}/>
+                <table>
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>0</th>
+                            <th>1</th>
+                            <th>2</th>
+                            <th>3</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Organ</td>
+                            <td><input
+                                type="checkbox"
+                                data-instrument="organ"
+                                data-time="0"
+                                id="organ0"
+                                onChange={this
+                .toggleCheckboxChange
+                .bind(this)}/></td>
+                            <td><input
+                                type="checkbox"
+                                data-instrument="organ"
+                                data-time="1"
+                                id="organ1"
+                                onChange={this
+                .toggleCheckboxChange
+                .bind(this)}/></td>
+                            <td><input
+                                type="checkbox"
+                                data-instrument="organ"
+                                data-time="2"
+                                id="organ2"
+                                onChange={this
+                .toggleCheckboxChange
+                .bind(this)}/></td>
+                            <td><input
+                                type="checkbox"
+                                data-instrument="organ"
+                                data-time="3"
+                                id="organ3"
+                                onChange={this
+                .toggleCheckboxChange
+                .bind(this)}/></td>
+                        </tr>
+                        <tr>
+                            <td>Clap</td>
+                            <td><input
+                                type="checkbox"
+                                data-instrument="clap"
+                                data-time="0"
+                                id="clap0"
+                                onChange={this
+                .toggleCheckboxChange
+                .bind(this)}/></td>
+                            <td><input
+                                type="checkbox"
+                                data-instrument="clap"
+                                data-time="1"
+                                id="clap1"
+                                onChange={this
+                .toggleCheckboxChange
+                .bind(this)}/></td>
+                            <td><input
+                                type="checkbox"
+                                data-instrument="clap"
+                                data-time="2"
+                                id="clap2"
+                                onChange={this
+                .toggleCheckboxChange
+                .bind(this)}/></td>
+                            <td><input
+                                type="checkbox"
+                                data-instrument="clap"
+                                data-time="3"
+                                id="clap3"
+                                onChange={this
+                .toggleCheckboxChange
+                .bind(this)}/></td>
+                        </tr>
+                        <tr>
+                            <td>Cymbal</td>
+                            <td><input
+                                type="checkbox"
+                                data-instrument="cymbal"
+                                data-time="0"
+                                id="cymbal0"
+                                onChange={this
+                .toggleCheckboxChange
+                .bind(this)}/></td>
+                            <td><input
+                                type="checkbox"
+                                data-instrument="cymbal"
+                                data-time="1"
+                                id="cymbal1"
+                                onChange={this
+                .toggleCheckboxChange
+                .bind(this)}/></td>
+                            <td><input
+                                type="checkbox"
+                                data-instrument="cymbal"
+                                data-time="2"
+                                id="cymbal2"
+                                onChange={this
+                .toggleCheckboxChange
+                .bind(this)}/></td>
+                            <td><input
+                                type="checkbox"
+                                data-instrument="cymbal"
+                                data-time="3"
+                                id="cymbal3"
+                                onChange={this
+                .toggleCheckboxChange
+                .bind(this)}/></td>
+                        </tr>
+                    </tbody>
+                </table>
                 <button
                     onClick={this
-                    .handlePianoClick
-                    .bind(this)}
-                    className="piano">Piano</button>
-                <button
-                    onClick={this
-                    .handleViolinClick
-                    .bind(this)}
-                    className="violin">Violin</button>
-                <button
-                    onClick={this
-                    .handleTrumpetClick
-                    .bind(this)}
-                    className="trumpet">Trumpet</button>
+                    .handleSubmit
+                    .bind(this)}>Play My Song!</button>
             </div>
         );
     }
