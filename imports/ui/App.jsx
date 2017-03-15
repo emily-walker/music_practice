@@ -6,15 +6,8 @@ export default class App extends Component {
     constructor(props) {
         super(props);
         this.selectedCheckboxes = [];
-        this.song = {
-            organ: [
-                false, false, false, false
-            ],
-            clap: [
-                false, false, false, false
-            ],
-            cymbal: [false, false, false, false]
-        };
+        this.songLength = 2000;
+        this.loopLength = 250;
         this.instruments = {
             organ: {
                 audio: new Audio('/audio/organ-1.mp3'),
@@ -29,6 +22,18 @@ export default class App extends Component {
                 filename: '/audio/cymbal.mp3'
             }
         }
+        this.song = JSON.parse(JSON.stringify(this.instruments));
+        for (var key in this.song) {
+            if (this.song.hasOwnProperty(key)) {
+                this.song[key] = [];
+                for (var j = 0; j < (this.songLength / this.loopLength); j++) {
+                    this
+                        .song[key]
+                        .push(false);
+                }
+            }
+        }
+        console.log(this.song);
     }
 
     toggleCheckboxChange(event) {
@@ -53,151 +58,93 @@ export default class App extends Component {
         var started = Date.now();
 
         var currentSecond = -1;
-        while (Date.now() - started <= 4000) {
-            if (Math.floor((Date.now() - started) / 1000) > currentSecond) {
-                currentSecond += 1;
+        var playSongInterval = window.setInterval(function () {
+            if (Date.now() - started > this.songLength) {
+                clearInterval(playSongInterval);
+            } else {
+                if (Math.floor((Date.now() - started) / this.loopLength) > currentSecond) {
+                    currentSecond += 1;
 
-                Object
-                    .keys(this.song)
-                    .forEach(function (instrument) {
-                        if (this.song[instrument][currentSecond]) {
-                            this.playInstrument(instrument);
-                        }
-                    }.bind(this));
+                    Object
+                        .keys(this.song)
+                        .forEach(function (instrument) {
+                            if (this.song[instrument][currentSecond]) {
+                                this.playInstrument(instrument);
+                            }
+                        }.bind(this));
+                }
             }
-        }
+        }.bind(this),this.loopLength);
     }
 
     playInstrument(instrument) {
+        console.log(this.song);
         console.log(instrument);
-        this
-            .instruments[instrument]
-            .audio
-            .play();
+        instrumentAudio = this.instruments[instrument].audio;
+
+        instrumentAudio.play();
+    }
+
+    recursivePause(instruments, instrumentAudio) {
+        for (var key in instruments) {
+            if (instruments.hasOwnProperty(key)) {
+                if (typeof instruments[key] == "object" && instruments[key] !== null) 
+                    this.recursivePause(instruments[key]);
+                else {
+                    if (!instruments[key] === instrumentAudio) {
+                        instruments[key].pause();
+                    }
+                }
+            }
+        }
     }
 
     render() {
         return (
             <div className="container">
                 <header>
-                    <h1>Click a button to start :)</h1>
+                    <h1>Hello! :)</h1>
                 </header>
                 <table>
                     <thead>
                         <tr>
-                            <th></th>
-                            <th>0</th>
-                            <th>1</th>
-                            <th>2</th>
-                            <th>3</th>
+                            <td></td>
+                            {(function (headerRows, i, length) {
+                                while (++i < length) {
+                                    headerRows.push(
+                                        <td key={i}>{i}</td>
+                                    )
+                                }
+                                return headerRows;
+                            })([], -1, (this.songLength / this.loopLength))}
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>Organ</td>
-                            <td><input
-                                type="checkbox"
-                                data-instrument="organ"
-                                data-time="0"
-                                id="organ0"
-                                onChange={this
-                .toggleCheckboxChange
-                .bind(this)}/></td>
-                            <td><input
-                                type="checkbox"
-                                data-instrument="organ"
-                                data-time="1"
-                                id="organ1"
-                                onChange={this
-                .toggleCheckboxChange
-                .bind(this)}/></td>
-                            <td><input
-                                type="checkbox"
-                                data-instrument="organ"
-                                data-time="2"
-                                id="organ2"
-                                onChange={this
-                .toggleCheckboxChange
-                .bind(this)}/></td>
-                            <td><input
-                                type="checkbox"
-                                data-instrument="organ"
-                                data-time="3"
-                                id="organ3"
-                                onChange={this
-                .toggleCheckboxChange
-                .bind(this)}/></td>
-                        </tr>
-                        <tr>
-                            <td>Clap</td>
-                            <td><input
-                                type="checkbox"
-                                data-instrument="clap"
-                                data-time="0"
-                                id="clap0"
-                                onChange={this
-                .toggleCheckboxChange
-                .bind(this)}/></td>
-                            <td><input
-                                type="checkbox"
-                                data-instrument="clap"
-                                data-time="1"
-                                id="clap1"
-                                onChange={this
-                .toggleCheckboxChange
-                .bind(this)}/></td>
-                            <td><input
-                                type="checkbox"
-                                data-instrument="clap"
-                                data-time="2"
-                                id="clap2"
-                                onChange={this
-                .toggleCheckboxChange
-                .bind(this)}/></td>
-                            <td><input
-                                type="checkbox"
-                                data-instrument="clap"
-                                data-time="3"
-                                id="clap3"
-                                onChange={this
-                .toggleCheckboxChange
-                .bind(this)}/></td>
-                        </tr>
-                        <tr>
-                            <td>Cymbal</td>
-                            <td><input
-                                type="checkbox"
-                                data-instrument="cymbal"
-                                data-time="0"
-                                id="cymbal0"
-                                onChange={this
-                .toggleCheckboxChange
-                .bind(this)}/></td>
-                            <td><input
-                                type="checkbox"
-                                data-instrument="cymbal"
-                                data-time="1"
-                                id="cymbal1"
-                                onChange={this
-                .toggleCheckboxChange
-                .bind(this)}/></td>
-                            <td><input
-                                type="checkbox"
-                                data-instrument="cymbal"
-                                data-time="2"
-                                id="cymbal2"
-                                onChange={this
-                .toggleCheckboxChange
-                .bind(this)}/></td>
-                            <td><input
-                                type="checkbox"
-                                data-instrument="cymbal"
-                                data-time="3"
-                                id="cymbal3"
-                                onChange={this
-                .toggleCheckboxChange
-                .bind(this)}/></td>
-                        </tr>
+                        {(function (nodeArr, rowArr) {
+                            var instruments = Object.keys(this.instruments);
+                            for (var i = 0; i < instruments.length; i++) {
+                                for (var j = 0; j < (this.songLength / this.loopLength); j++) {
+                                    nodeArr.push(
+                                        <td><input
+                                            type="checkbox"
+                                            data-instrument={instruments[i]}
+                                            data-time={j}
+                                            key={j}
+                                            onChange={this
+                                            .toggleCheckboxChange
+                                            .bind(this)}/></td>
+                                    )
+                                }
+                                rowArr.push(
+                                    <tr>
+                                        <td key={i}>{instruments[i]}</td>
+                                        {nodeArr}
+                                    </tr>
+                                );
+                                nodeArr = [];
+                            }
+                            return rowArr;
+                        }.bind(this))([], [])}
                     </tbody>
                 </table>
                 <button

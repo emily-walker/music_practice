@@ -1,1 +1,4 @@
 /* CSS declarations go here */
+input[placeholder] {
+    width: 400px;
+}
